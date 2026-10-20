@@ -11,28 +11,35 @@
   <!-- Панель во время игры -->
   <div class="hud hidden" id="hud">
     <div class="hud-top">
-      <div class="hud-box">
-        <span class="hud-label">🪙 Монеты</span>
-        <b id="coins">0</b>
+      <!-- Слева: монеты и жизни базы -->
+      <div class="hud-group">
+        <div class="hud-box">
+          <span class="hud-label">🪙 Монеты</span>
+          <b id="coins">0</b>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label" id="baseLabel">🏰 Замок</span>
+          <b id="lives">20</b>
+        </div>
       </div>
-      <div class="hud-box">
-        <span class="hud-label" id="baseLabel">🏰 Замок</span>
-        <b id="lives">20</b>
-      </div>
+      <!-- По центру: номер волны -->
       <div class="hud-box hud-center">
         <span class="hud-label">Волна</span>
         <b id="wave">1</b>
       </div>
-      <div class="hud-box">
-        <span class="hud-label">Очки</span>
-        <b id="score">0</b>
+      <!-- Справа: очки и пауза -->
+      <div class="hud-group hud-group-right">
+        <div class="hud-box">
+          <span class="hud-label">Очки</span>
+          <b id="score">0</b>
+        </div>
+        <button class="icon-btn" id="pauseButton" type="button" aria-label="Пауза">
+          <svg viewBox="0 0 24 24" width="22" height="22"><rect x="6" y="5" width="4" height="14" rx="1.5" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.5" fill="currentColor"/></svg>
+        </button>
       </div>
-      <button class="icon-btn" id="pauseButton" type="button" aria-label="Пауза">
-        <svg viewBox="0 0 24 24" width="22" height="22"><rect x="6" y="5" width="4" height="14" rx="1.5" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.5" fill="currentColor"/></svg>
-      </button>
     </div>
     <!-- Улучшения, которые уже взяли -->
-    <div class="weapon" id="perkChips" style="bottom: 70px;"></div>
+    <div class="weapon perk-chips" id="perkChips"></div>
     <!-- Кнопки действий -->
     <div class="td-bar">
       <button class="td-btn" id="quizButton" type="button">❓ Вопрос +50🪙</button>

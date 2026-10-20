@@ -1284,7 +1284,9 @@ function openBuildMenu(padIndex) {
   const p = cellCenter(c, r);
   menu.classList.remove('hidden');
   const left = clamp(p.x * scale + 34 * scale, 4, W * scale - menu.offsetWidth - 4);
-  const top = clamp(p.y * scale - menu.offsetHeight / 2, 4, H * scale - menu.offsetHeight - 4);
+  // Сверху меню не заезжает на панель, снизу — на кнопки
+  const hudBottom = document.querySelector('.hud-top').getBoundingClientRect().bottom - stage.getBoundingClientRect().top + 6;
+  const top = clamp(p.y * scale - menu.offsetHeight / 2, hudBottom, H * scale - menu.offsetHeight - 60);
   menu.style.left = left + 'px';
   menu.style.top = top + 'px';
 }

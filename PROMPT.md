@@ -46,6 +46,9 @@
 - ⚠️ Кнопка «❓ Вопрос +50🪙»: доступна всегда в `build` и `wave`, ставит игру на паузу; верный ответ — монеты, неверный — кнопка «отдыхает» 3 с.
 - ⚠️ Конец волны → монеты `30 + 5N`, очки, и **сразу** бонусный вопрос (не через setTimeout, иначе игрок успевает начать следующую волну и вопрос пропадает); верно → 3 улучшения из 15 (урон +25%, скорострельность, дальность, монеты +50%, +5 жизней, скидка 20%, мороз, крит, взрыв врага, +25 монет за ответ, яд, двойной выстрел, +40 монет в начале волны, урон по боссам, ремонт +10).
 - Ускорение ×2 — два шага обновления за кадр.
+- ⚠️ Верхняя панель — сетка `grid-template-columns: 1fr auto 1fr`: слева группа «Монеты + База», **точно по центру** «Волна», справа «Очки + пауза». Все блоки одной высоты (54, на узком экране 36). Через `space-between` центр уезжал из-за разной ширины блоков.
+- ⚠️ Меню башни не заезжает на верхнюю панель и нижние кнопки (ограничение по `top`). Чипы улучшений — по центру над нижними кнопками. Всплывающие надписи переносятся (`max-width: 92%`), а не обрезаются.
+- ⚠️ Экраны (меню, сложность, вопрос, улучшения, настройки, пауза, конец) — `position: fixed` на всё окно: на телефоне карта занимает узкую полосу, и окна внутри неё не помещались.
 - Узкий экран: компактная панель (`@media max-width: 700px`), в меню подсказка играть горизонтально.
 
 ## Общее для всех пяти игр (Quiz Shooter, Quiz Tower, Quiz Snake, Quiz Jump, Quiz Breakout)
@@ -119,9 +122,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Quiz Tower</title>
   <!-- Подключаем файл с оформлением.
-       ?v=1 — номер версии: меняем его при каждом обновлении игры,
+       ?v=2 — номер версии: меняем его при каждом обновлении игры,
        чтобы браузер не брал старый файл из кэша -->
-  <link rel="stylesheet" href="style.css?v=1">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -139,28 +142,35 @@
   <!-- Панель во время игры -->
   <div class="hud hidden" id="hud">
     <div class="hud-top">
-      <div class="hud-box">
-        <span class="hud-label">🪙 Монеты</span>
-        <b id="coins">0</b>
+      <!-- Слева: монеты и жизни базы -->
+      <div class="hud-group">
+        <div class="hud-box">
+          <span class="hud-label">🪙 Монеты</span>
+          <b id="coins">0</b>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label" id="baseLabel">🏰 Замок</span>
+          <b id="lives">20</b>
+        </div>
       </div>
-      <div class="hud-box">
-        <span class="hud-label" id="baseLabel">🏰 Замок</span>
-        <b id="lives">20</b>
-      </div>
+      <!-- По центру: номер волны -->
       <div class="hud-box hud-center">
         <span class="hud-label">Волна</span>
         <b id="wave">1</b>
       </div>
-      <div class="hud-box">
-        <span class="hud-label">Очки</span>
-        <b id="score">0</b>
+      <!-- Справа: очки и пауза -->
+      <div class="hud-group hud-group-right">
+        <div class="hud-box">
+          <span class="hud-label">Очки</span>
+          <b id="score">0</b>
+        </div>
+        <button class="icon-btn" id="pauseButton" type="button" aria-label="Пауза">
+          <svg viewBox="0 0 24 24" width="22" height="22"><rect x="6" y="5" width="4" height="14" rx="1.5" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.5" fill="currentColor"/></svg>
+        </button>
       </div>
-      <button class="icon-btn" id="pauseButton" type="button" aria-label="Пауза">
-        <svg viewBox="0 0 24 24" width="22" height="22"><rect x="6" y="5" width="4" height="14" rx="1.5" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.5" fill="currentColor"/></svg>
-      </button>
     </div>
     <!-- Улучшения, которые уже взяли -->
-    <div class="weapon" id="perkChips" style="bottom: 70px;"></div>
+    <div class="weapon perk-chips" id="perkChips"></div>
     <!-- Кнопки действий -->
     <div class="td-bar">
       <button class="td-btn" id="quizButton" type="button">❓ Вопрос +50🪙</button>
@@ -303,7 +313,7 @@
 <!-- ↑↑↑ Для CodePen копируйте до этой строки (строку <script> ниже — НЕ копировать) ↑↑↑ -->
 
 <!-- Подключаем файл с логикой игры (номер версии — как у style.css) -->
-<script src="script.js?v=1"></script>
+<script src="script.js?v=2"></script>
 </body>
 </html>
 ````
@@ -1357,6 +1367,90 @@ kbd {
   .toast {
     font-size: 18px;
   }
+}
+
+/* ---------- Ровная верхняя панель ----------
+   Три колонки: слева и справа одинаковой ширины (1fr),
+   поэтому блок «Волна» стоит точно по центру */
+.hud-top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+}
+
+.hud-group {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.hud-group-right {
+  justify-content: flex-end;
+}
+
+/* Все блоки одной высоты, текст по центру */
+.hud-top .hud-box {
+  justify-content: center;
+  min-width: 86px;
+  height: 54px;
+  text-align: center;
+}
+
+.hud-top .hud-label {
+  line-height: 16px;
+}
+
+.hud-top .icon-btn {
+  width: 54px;
+  height: 54px;
+}
+
+/* Улучшения — над нижними кнопками, по центру */
+.perk-chips {
+  left: 50%;
+  bottom: 66px;
+  justify-content: center;
+  transform: translateX(-50%);
+}
+
+@media (max-width: 700px) {
+  .hud-top .hud-box {
+    min-width: 0;
+    height: 36px;
+    padding: 2px 7px;
+  }
+
+  .hud-top .hud-label {
+    line-height: 11px;
+  }
+
+  .hud-top .icon-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .hud-group {
+    gap: 4px;
+  }
+
+  .perk-chips {
+    bottom: 42px;
+  }
+}
+
+/* Длинные подсказки переносятся, а не обрезаются краем экрана */
+.toast {
+  width: max-content;
+  max-width: 92%;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.15;
+}
+
+/* Экраны (меню, вопрос, улучшения, настройки…) — на всё окно, а не только
+   поверх карты: на телефоне карта узкой полосой, и окна в ней не помещались */
+.screen {
+  position: fixed;
 }
 ````
 
@@ -2649,7 +2743,9 @@ function openBuildMenu(padIndex) {
   const p = cellCenter(c, r);
   menu.classList.remove('hidden');
   const left = clamp(p.x * scale + 34 * scale, 4, W * scale - menu.offsetWidth - 4);
-  const top = clamp(p.y * scale - menu.offsetHeight / 2, 4, H * scale - menu.offsetHeight - 4);
+  // Сверху меню не заезжает на панель, снизу — на кнопки
+  const hudBottom = document.querySelector('.hud-top').getBoundingClientRect().bottom - stage.getBoundingClientRect().top + 6;
+  const top = clamp(p.y * scale - menu.offsetHeight / 2, hudBottom, H * scale - menu.offsetHeight - 60);
   menu.style.left = left + 'px';
   menu.style.top = top + 'px';
 }
